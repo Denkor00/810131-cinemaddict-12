@@ -130,13 +130,12 @@ const CountType = {
 };
 
 // создание моков для фильма
-const commonFilms = new Array(CountType.COMMON_FILMS_COUNT).fill().map(_mock_film_js__WEBPACK_IMPORTED_MODULE_9__["generateFilm"]);
-const topRatedFilms = commonFilms.slice().sort((firstFilm, secondFilm) => firstFilm.rating < secondFilm.rating ? 1 : -1);
-const topCommentedFilms = commonFilms.slice().sort((firstFilm, secondFilm) => firstFilm.comments.length < secondFilm.comments.length ? 1 : -1
-);
+const commonFilms = new Array(CountType.COMMON_FILMS_COUNT).fill(``).map(_mock_film_js__WEBPACK_IMPORTED_MODULE_9__["generateFilm"]);
+const topRatedFilms = commonFilms.slice().sort((firstFilm, secondFilm) => secondFilm.rating - firstFilm.rating);
+const topCommentedFilms = commonFilms.slice().sort((firstFilm, secondFilm) => secondFilm.comments.length - firstFilm.comments.length);
 const filmsCount = commonFilms.length;
 // счет фильмов для меню, для статуса пользователя
-const filmsStatusCount = Object(_mock_menu_js__WEBPACK_IMPORTED_MODULE_11__["generateFilmMenuCount"])(commonFilms);
+const filmsStatusCount = Object(_mock_menu_js__WEBPACK_IMPORTED_MODULE_11__["generateFilmsMenu"])(commonFilms);
 const countFilmsStatus = Object(_utils_js__WEBPACK_IMPORTED_MODULE_12__["createObjectCountFromArray"])(filmsStatusCount);
 // мок для пользователя
 const user = Object(_mock_user_js__WEBPACK_IMPORTED_MODULE_10__["generateUser"])(countFilmsStatus);
@@ -170,14 +169,10 @@ filmsListExtraElements.forEach((element) => {
   const filmsListExtraContainerElement = element.querySelector(`.films-list__container`);
   const filmsListTitleElement = element.querySelector(`.films-list__title`);
 
-  if (filmsListTitleElement.textContent === `Top rated`) {
-    for (let i = 0; i < CountType.EXTRA_FILMS_COUNT; i++) {
-      render(filmsListExtraContainerElement, Object(_view_film_card_js__WEBPACK_IMPORTED_MODULE_7__["createFilmCardTemplate"])(topRatedFilms[i]), `beforeend`);
-    }
-  } else {
-    for (let i = 0; i < CountType.EXTRA_FILMS_COUNT; i++) {
-      render(filmsListExtraContainerElement, Object(_view_film_card_js__WEBPACK_IMPORTED_MODULE_7__["createFilmCardTemplate"])(topCommentedFilms[i]), `beforeend`);
-    }
+  const filmsForRendering = filmsListTitleElement.textContent === `Top rated` ? topRatedFilms : topCommentedFilms;
+
+  for (let i = 0; i < CountType.EXTRA_FILMS_COUNT; i++) {
+    render(filmsListExtraContainerElement, Object(_view_film_card_js__WEBPACK_IMPORTED_MODULE_7__["createFilmCardTemplate"])(filmsForRendering[i]), `beforeend`);
   }
 });
 
@@ -215,15 +210,20 @@ if (commonFilms.length > CountType.RENDER_FOR_STEP) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "generateComment", function() { return generateComment; });
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils.js */ "./src/utils.js");
+const generateRandomDateForComment = () => {
+  const start = new Date(2019, 10, 30);
+  const end = new Date();
+  const randomDate = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
 
+  return `${randomDate.getFullYear()}/${randomDate.getMonth()}/${randomDate.getDate()} ${randomDate.getHours()}:${randomDate.getMinutes()}`;
+};
 
 const generateComment = () => {
   return {
     emoji: `./images/emoji/smile.png`,
     text: `Interesting setting and a good cast`,
     author: `Tim Macoveev`,
-    time: Object(_utils_js__WEBPACK_IMPORTED_MODULE_0__["generateRandomDateForComment"])(),
+    time: generateRandomDateForComment(),
   };
 };
 
@@ -303,24 +303,18 @@ const generateGenre = () => {
   return randomGenres;
 };
 
-const generateDuration = () => {
-  const hour = Object(_utils_js__WEBPACK_IMPORTED_MODULE_1__["getRandomInteger"])(0, 1);
-  const minute = Object(_utils_js__WEBPACK_IMPORTED_MODULE_1__["getRandomInteger"])(0, 60);
-  let randomDuration = ``;
+const generateDuration = () => ({
+  hours: Object(_utils_js__WEBPACK_IMPORTED_MODULE_1__["getRandomInteger"])(0, 1),
+  minutes: Object(_utils_js__WEBPACK_IMPORTED_MODULE_1__["getRandomInteger"])(1, 60),
+});
 
-  randomDuration += hour ? `${hour}h ` : ``;
-  randomDuration += minute ? `${minute}m` : ``;
+const getRandomBooleanValue = () => Boolean(Object(_utils_js__WEBPACK_IMPORTED_MODULE_1__["getRandomInteger"])(0, 1));
 
-  return randomDuration;
-};
-
-const generateStatus = () => {
-  return {
-    favorite: Boolean(Object(_utils_js__WEBPACK_IMPORTED_MODULE_1__["getRandomInteger"])(0, 1)),
-    watched: Boolean(Object(_utils_js__WEBPACK_IMPORTED_MODULE_1__["getRandomInteger"])(0, 1)),
-    watchlist: Boolean(Object(_utils_js__WEBPACK_IMPORTED_MODULE_1__["getRandomInteger"])(0, 1)),
-  };
-};
+const generateStatus = () => ({
+  favorite: getRandomBooleanValue(),
+  watched: getRandomBooleanValue(),
+  watchlist: getRandomBooleanValue(),
+});
 
 const generateFilm = () => {
   return {
@@ -348,19 +342,19 @@ const generateFilm = () => {
 /*!**************************!*\
   !*** ./src/mock/menu.js ***!
   \**************************/
-/*! exports provided: generateFilmMenuCount */
+/*! exports provided: generateFilmsMenu */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "generateFilmMenuCount", function() { return generateFilmMenuCount; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "generateFilmsMenu", function() { return generateFilmsMenu; });
 const countMapMenu = {
   favorite: (values) => values.filter((element) => element.favorite).length,
   watched: (values) => values.filter((element) => element.watched).length,
   watchlist: (values) => values.filter((element) => element.watchlist).length,
 };
 
-const generateFilmMenuCount = (films) => {
+const generateFilmsMenu = (films) => {
   const statuses = films.map((element) => element.status);
 
   return Object.entries(countMapMenu).map(([countMapMenuName, countFilm]) => ({
@@ -382,17 +376,25 @@ const generateFilmMenuCount = (films) => {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "generateUser", function() { return generateUser; });
-const generateUser = (countFilmsStatus) => {
-  const {watched} = countFilmsStatus;
+const WatchCount = {
+  NOVICE_LOW_BOUND: 1,
+  NOVICE_UPPER_BOUND: 10,
+  FAN_LOW_BOUND: 11,
+  FAN_UPPER_BOUND: 20,
+};
+
+const generateUser = ({watched}) => {
+  const {NOVICE_LOW_BOUND, NOVICE_UPPER_BOUND, FAN_LOW_BOUND, FAN_UPPER_BOUND} = WatchCount;
+
   let userRating = ``;
   switch (true) {
-    case watched >= 1 && watched <= 10:
+    case watched >= NOVICE_LOW_BOUND && watched <= NOVICE_UPPER_BOUND:
       userRating = `Novice`;
       break;
-    case watched >= 11 && watched <= 20:
+    case watched >= FAN_LOW_BOUND && watched <= FAN_UPPER_BOUND:
       userRating = `Fan`;
       break;
-    case watched > 20:
+    case watched > FAN_UPPER_BOUND:
       userRating = `Movie Buff`;
   }
 
@@ -409,7 +411,7 @@ const generateUser = (countFilmsStatus) => {
 /*!**********************!*\
   !*** ./src/utils.js ***!
   \**********************/
-/*! exports provided: getRandomInteger, getRandomDouble, genRandomDate, generateRandomDateForComment, createObjectCountFromArray */
+/*! exports provided: getRandomInteger, getRandomDouble, genRandomDate, createObjectCountFromArray, getHumanizeViewFromDuration */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -417,8 +419,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getRandomInteger", function() { return getRandomInteger; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getRandomDouble", function() { return getRandomDouble; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "genRandomDate", function() { return genRandomDate; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "generateRandomDateForComment", function() { return generateRandomDateForComment; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createObjectCountFromArray", function() { return createObjectCountFromArray; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getHumanizeViewFromDuration", function() { return getHumanizeViewFromDuration; });
 const getRandomInteger = (min = 0, max = 1) => {
   const lower = Math.ceil(Math.min(min, max));
   const upper = Math.floor(Math.max(min, max));
@@ -441,14 +443,6 @@ const genRandomDate = () => {
   return randomDate.toLocaleString(`en-GB`, {day: `numeric`, month: `long`, year: `numeric`});
 };
 
-const generateRandomDateForComment = () => {
-  const start = new Date(2019, 10, 30);
-  const end = new Date();
-  const randomDate = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
-
-  return `${randomDate.getFullYear()}/${randomDate.getMonth()}/${randomDate.getDate()} ${randomDate.getHours()}:${randomDate.getMinutes()}`;
-};
-
 const createObjectCountFromArray = (values) => {
   const result = {};
 
@@ -457,6 +451,14 @@ const createObjectCountFromArray = (values) => {
   });
 
   return result;
+};
+
+const getHumanizeViewFromDuration = ({hours, minutes}) => {
+  let humanizeTimeString = ``;
+  humanizeTimeString += hours ? `${hours}h ` : ``;
+  humanizeTimeString += minutes ? `${minutes}m` : ``;
+
+  return humanizeTimeString;
 };
 
 
@@ -481,6 +483,7 @@ const createFilmCardTemplate = (film) => {
   const {favorite, watched, watchlist} = status;
   const genre = genres[Object(_utils_js__WEBPACK_IMPORTED_MODULE_0__["getRandomInteger"])(0, genres.length - 1)];
   const year = releaseDate.slice(releaseDate.length - 4, releaseDate.length);
+  const humanizeDuration = Object(_utils_js__WEBPACK_IMPORTED_MODULE_0__["getHumanizeViewFromDuration"])(duration);
 
   return (`
     <article class="film-card">
@@ -488,7 +491,7 @@ const createFilmCardTemplate = (film) => {
       <p class="film-card__rating">${rating}</p>
       <p class="film-card__info">
         <span class="film-card__year">${year}</span>
-        <span class="film-card__duration">${duration}</span>
+        <span class="film-card__duration">${humanizeDuration}</span>
         <span class="film-card__genre">${genre}</span>
       </p>
       <img src="${image}" alt="" class="film-card__poster">
