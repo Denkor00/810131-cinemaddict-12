@@ -107,7 +107,6 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _mock_film_js__WEBPACK_IMPORTED_MODULE_9__ = __webpack_require__(/*! ./mock/film.js */ "./src/mock/film.js");
 /* harmony import */ var _mock_user_js__WEBPACK_IMPORTED_MODULE_10__ = __webpack_require__(/*! ./mock/user.js */ "./src/mock/user.js");
 /* harmony import */ var _mock_menu_js__WEBPACK_IMPORTED_MODULE_11__ = __webpack_require__(/*! ./mock/menu.js */ "./src/mock/menu.js");
-/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_12__ = __webpack_require__(/*! ./utils.js */ "./src/utils.js");
 
 
 
@@ -122,7 +121,6 @@ __webpack_require__.r(__webpack_exports__);
  // мок для пользователя
  // счет фильмов для меню
 
-
 const CountType = {
   COMMON_FILMS_COUNT: 20,
   EXTRA_FILMS_COUNT: 2,
@@ -136,9 +134,8 @@ const topCommentedFilms = commonFilms.slice().sort((firstFilm, secondFilm) => se
 const filmsCount = commonFilms.length;
 // счет фильмов для меню, для статуса пользователя
 const filmsStatusCount = Object(_mock_menu_js__WEBPACK_IMPORTED_MODULE_11__["generateFilmsMenu"])(commonFilms);
-const countFilmsStatus = Object(_utils_js__WEBPACK_IMPORTED_MODULE_12__["createObjectCountFromArray"])(filmsStatusCount);
 // мок для пользователя
-const user = Object(_mock_user_js__WEBPACK_IMPORTED_MODULE_10__["generateUser"])(countFilmsStatus);
+const user = Object(_mock_user_js__WEBPACK_IMPORTED_MODULE_10__["generateUser"])(filmsStatusCount);
 
 const headerElement = document.querySelector(`.header`);
 const mainElement = document.querySelector(`.main`);
@@ -149,7 +146,7 @@ const render = (container, template, place) => {
 };
 
 render(headerElement, Object(_view_user_profile_js__WEBPACK_IMPORTED_MODULE_0__["createUserProfileTemplate"])(user), `beforeend`);
-render(mainElement, Object(_view_menu_js__WEBPACK_IMPORTED_MODULE_1__["createMenuTemplate"])(countFilmsStatus), `beforeend`);
+render(mainElement, Object(_view_menu_js__WEBPACK_IMPORTED_MODULE_1__["createMenuTemplate"])(filmsStatusCount), `beforeend`);
 render(mainElement, Object(_view_sorting_js__WEBPACK_IMPORTED_MODULE_2__["createSortingTemplate"])(), `beforeend`);
 render(mainElement, Object(_view_films_container_js__WEBPACK_IMPORTED_MODULE_3__["createFilmsContainerTemplate"])(), `beforeend`);
 
@@ -210,6 +207,28 @@ if (commonFilms.length > CountType.RENDER_FOR_STEP) {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "generateComment", function() { return generateComment; });
+/* harmony import */ var _utils_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../utils.js */ "./src/utils.js");
+
+
+const EMOJIS = [
+  `./images/emoji/smile.png`,
+  `./images/emoji/sleeping.png`,
+  `./images/emoji/puke.png`,
+  `./images/emoji/angry.png`,
+];
+const COMMENTS_TEXT = [
+  `Interesting setting and a good cast`,
+  `Booooooooooring`,
+  `Very very old. Meh`,
+  `Almost two hours? Seriously?`
+];
+const AUTHORS = [
+  `Tim Macoveev`,
+  `John Doe`,
+  `Ivan Ivanov`,
+  `Petr Petrov`
+];
+
 const generateRandomDateForComment = () => {
   const start = new Date(2019, 10, 30);
   const end = new Date();
@@ -218,14 +237,12 @@ const generateRandomDateForComment = () => {
   return `${randomDate.getFullYear()}/${randomDate.getMonth()}/${randomDate.getDate()} ${randomDate.getHours()}:${randomDate.getMinutes()}`;
 };
 
-const generateComment = () => {
-  return {
-    emoji: `./images/emoji/smile.png`,
-    text: `Interesting setting and a good cast`,
-    author: `Tim Macoveev`,
-    time: generateRandomDateForComment(),
-  };
-};
+const generateComment = () => ({
+  emoji: Object(_utils_js__WEBPACK_IMPORTED_MODULE_0__["getRandomValueFromArray"])(EMOJIS),
+  text: Object(_utils_js__WEBPACK_IMPORTED_MODULE_0__["getRandomValueFromArray"])(COMMENTS_TEXT),
+  author: Object(_utils_js__WEBPACK_IMPORTED_MODULE_0__["getRandomValueFromArray"])(AUTHORS),
+  time: generateRandomDateForComment(),
+});
 
 
 /***/ }),
@@ -245,63 +262,45 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const titles = [
+const GENRE_TYPES = [
+  `Musical`,
+  `Western`,
+  `Drama`,
+  `Comedy`,
+  `Cartoon`,
+  `Film - Noir`,
+  `Mystery`
+];
+const TITLES = [
   `The Dance of Life`,
   `Sagebrush Trail`,
   `The Man with the Golden Arm`,
   `The Great Flamarion`
 ];
+const IMAGES = [
+  `./images/posters/made-for-each-other.png`,
+  `./images/posters/the-man-with-the-golden-arm.jpg`,
+  `./images/posters/the-great-flamarion.jpg`,
+  `./images/posters/the-dance-of-life.jpg`,
+  `./images/posters/santa-claus-conquers-the-martians.jpg`,
+  `./images/posters/sagebrush-trail.jpg`,
+  `./images/posters/popeye-meets-sinbad.png`,
+];
+const SENTENCES = [
+  `Lorem ipsum dolor sit amet, consectetur adipiscing elit.`,
+  `Cras aliquet varius magna, non porta ligula feugiat eget.`,
+  `Fusce tristique felis at fermentum pharetra.`,
+  `Aliquam id orci ut lectus varius viverra.`,
+  `Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante.`,
+  `Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum.`,
+  `Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui.`,
+  `Sed sed nisi sed augue convallis suscipit in sed felis.`,
+  `Aliquam erat volutpat.`,
+  `Nunc fermentum tortor ac porta dapibus.`,
+  `In rutrum ac purus sit amet tempus.`];
 
-const generateImage = () => {
-
-  const images = [
-    `./images/posters/made-for-each-other.png`,
-    `./images/posters/the-man-with-the-golden-arm.jpg`,
-    `./images/posters/the-great-flamarion.jpg`,
-    `./images/posters/the-dance-of-life.jpg`,
-    `./images/posters/santa-claus-conquers-the-martians.jpg`,
-    `./images/posters/sagebrush-trail.jpg`,
-    `./images/posters/popeye-meets-sinbad.png`,
-  ];
-  const randomImage = images[Object(_utils_js__WEBPACK_IMPORTED_MODULE_1__["getRandomInteger"])(0, images.length - 1)];
-  return randomImage;
-};
-
-const generateDesciption = () => {
-
-  const sentences = [
-    `Lorem ipsum dolor sit amet, consectetur adipiscing elit.`,
-    `Cras aliquet varius magna, non porta ligula feugiat eget.`,
-    `Fusce tristique felis at fermentum pharetra.`,
-    `Aliquam id orci ut lectus varius viverra.`,
-    `Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante.`,
-    `Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum.`,
-    `Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui.`,
-    `Sed sed nisi sed augue convallis suscipit in sed felis.`,
-    `Aliquam erat volutpat.`,
-    `Nunc fermentum tortor ac porta dapibus.`,
-    `In rutrum ac purus sit amet tempus.`];
-
-  const randomSentence = sentences.slice(0, Object(_utils_js__WEBPACK_IMPORTED_MODULE_1__["getRandomInteger"])(1, 5)).join(``);
-
-  return randomSentence;
-};
-
-const generateGenre = () => {
-
-  const genreTypes = [
-    `Musical`,
-    `Western`,
-    `Drama`,
-    `Comedy`,
-    `Cartoon`,
-    `Film - Noir`,
-    `Mystery`
-  ];
-
-  const randomGenres = genreTypes.slice(0, Object(_utils_js__WEBPACK_IMPORTED_MODULE_1__["getRandomInteger"])(1, genreTypes.length - 1));
-  return randomGenres;
-};
+const generateDesciption = (sentences) => sentences.slice(0, Object(_utils_js__WEBPACK_IMPORTED_MODULE_1__["getRandomInteger"])(1, 5)).join(``);
+const generateGenre = (genreTypes) => genreTypes.slice(0, Object(_utils_js__WEBPACK_IMPORTED_MODULE_1__["getRandomInteger"])(1, genreTypes.length - 1));
 
 const generateDuration = () => ({
   hours: Object(_utils_js__WEBPACK_IMPORTED_MODULE_1__["getRandomInteger"])(0, 1),
@@ -318,17 +317,17 @@ const generateStatus = () => ({
 
 const generateFilm = () => {
   return {
-    image: generateImage(),
-    title: titles[Object(_utils_js__WEBPACK_IMPORTED_MODULE_1__["getRandomInteger"])(0, titles.length - 1)],
+    image: Object(_utils_js__WEBPACK_IMPORTED_MODULE_1__["getRandomValueFromArray"])(IMAGES),
+    title: Object(_utils_js__WEBPACK_IMPORTED_MODULE_1__["getRandomValueFromArray"])(TITLES),
     rating: Object(_utils_js__WEBPACK_IMPORTED_MODULE_1__["getRandomDouble"])(1, 9),
     director: `Anthony Mann`,
     writers: `Anne Wigton, Heinz Herald, Richard Weil`,
     actors: `Erich von Stroheim, Mary Beth Hughes, Dan Duryea`,
-    releaseDate: Object(_utils_js__WEBPACK_IMPORTED_MODULE_1__["genRandomDate"])(),
+    releaseDate: Object(_utils_js__WEBPACK_IMPORTED_MODULE_1__["getRandomDate"])(),
     duration: generateDuration(),
     country: `USA`,
-    genres: generateGenre(),
-    description: generateDesciption(),
+    genres: generateGenre(GENRE_TYPES),
+    description: generateDesciption(SENTENCES),
     comments: new Array(Object(_utils_js__WEBPACK_IMPORTED_MODULE_1__["getRandomInteger"])(0, 5)).fill(``).map(_comment_js__WEBPACK_IMPORTED_MODULE_0__["generateComment"]),
     ageRating: `18+`,
     status: generateStatus(),
@@ -357,11 +356,17 @@ const countMapMenu = {
 const generateFilmsMenu = (films) => {
   const statuses = films.map((element) => element.status);
 
-  return Object.entries(countMapMenu).map(([countMapMenuName, countFilm]) => ({
+  const filmsMenuCount = Object.entries(countMapMenu).map(([countMapMenuName, countFilm]) => ({
     title: countMapMenuName,
     count: countFilm(statuses),
   }));
+  const result = {};
+  filmsMenuCount.forEach(({title, count}) => {
+    result[title] = count;
+  });
+  return result;
 };
+
 
 
 /***/ }),
@@ -411,16 +416,16 @@ const generateUser = ({watched}) => {
 /*!**********************!*\
   !*** ./src/utils.js ***!
   \**********************/
-/*! exports provided: getRandomInteger, getRandomDouble, genRandomDate, createObjectCountFromArray, getHumanizeViewFromDuration */
+/*! exports provided: getRandomInteger, getRandomDouble, getRandomDate, getHumanizeViewFromDuration, getRandomValueFromArray */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getRandomInteger", function() { return getRandomInteger; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getRandomDouble", function() { return getRandomDouble; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "genRandomDate", function() { return genRandomDate; });
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "createObjectCountFromArray", function() { return createObjectCountFromArray; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getRandomDate", function() { return getRandomDate; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getHumanizeViewFromDuration", function() { return getHumanizeViewFromDuration; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getRandomValueFromArray", function() { return getRandomValueFromArray; });
 const getRandomInteger = (min = 0, max = 1) => {
   const lower = Math.ceil(Math.min(min, max));
   const upper = Math.floor(Math.max(min, max));
@@ -435,22 +440,12 @@ const getRandomDouble = (min, max) => {
   return (lower + Math.random() * (upper - lower + 1)).toFixed(1);
 };
 
-const genRandomDate = () => {
+const getRandomDate = () => {
   const start = new Date(1940, 10, 30);
   const end = new Date();
   const randomDate = new Date(start.getTime() + Math.random() * (end.getTime() - start.getTime()));
 
   return randomDate.toLocaleString(`en-GB`, {day: `numeric`, month: `long`, year: `numeric`});
-};
-
-const createObjectCountFromArray = (values) => {
-  const result = {};
-
-  values.forEach((element) => {
-    result[element.title] = element.count;
-  });
-
-  return result;
 };
 
 const getHumanizeViewFromDuration = ({hours, minutes}) => {
@@ -460,6 +455,8 @@ const getHumanizeViewFromDuration = ({hours, minutes}) => {
 
   return humanizeTimeString;
 };
+
+const getRandomValueFromArray = (values) => values[getRandomInteger(0, values.length - 1)];
 
 
 /***/ }),
@@ -481,7 +478,7 @@ const createFilmCardTemplate = (film) => {
 
   const {title, rating, releaseDate, duration, genres, image, description, comments, status} = film;
   const {favorite, watched, watchlist} = status;
-  const genre = genres[Object(_utils_js__WEBPACK_IMPORTED_MODULE_0__["getRandomInteger"])(0, genres.length - 1)];
+  const genre = Object(_utils_js__WEBPACK_IMPORTED_MODULE_0__["getRandomValueFromArray"])(genres);
   const year = releaseDate.slice(releaseDate.length - 4, releaseDate.length);
   const humanizeDuration = Object(_utils_js__WEBPACK_IMPORTED_MODULE_0__["getHumanizeViewFromDuration"])(duration);
 
