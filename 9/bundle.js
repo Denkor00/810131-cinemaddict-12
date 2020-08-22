@@ -6138,10 +6138,10 @@ const Mode = {
 };
 
 const EmojiType = {
-  [`smile`]: `./images/emoji/smile.png`,
-  [`sleeping`]: `./images/emoji/sleeping.png`,
-  [`puke`]: `./images/emoji/puke.png`,
-  [`angry`]: `./images/emoji/angry.png`,
+  SMILE: `./images/emoji/smile.png`,
+  SLEEPING: `./images/emoji/sleeping.png`,
+  PUKE: `./images/emoji/puke.png`,
+  ANGRY: `./images/emoji/angry.png`,
 };
 
 class Film {
@@ -6171,7 +6171,7 @@ class Film {
     const prevFilmDetailElement = this._filmDetailElement;
 
     this._filmCardElement = new _view_film_card_js__WEBPACK_IMPORTED_MODULE_0__["default"](film);
-    this._filmDetailElement = new _view_film_details_js__WEBPACK_IMPORTED_MODULE_1__["default"](film);
+    this._filmDetailElement = new _view_film_details_js__WEBPACK_IMPORTED_MODULE_1__["default"](film, `test`);
 
     this._filmCardElement.setClickHandler(this._showFilmDetail);
 
@@ -6256,7 +6256,7 @@ class Film {
 
   _handleDeleteButtonClick(commentId) {
     const newComments = this._film.comments.filter((comment) => comment.id !== parseInt(commentId, 10));
-    this._changeData(Object.assign({}, this._film, {comments: newComments.slice(0)}));
+    this._changeData(Object.assign({}, this._film, {comments: newComments.slice()}));
   }
 
   _handleEnterKeyDown(evt) {
@@ -6266,14 +6266,14 @@ class Film {
       if (userMessage && selectedEmojiType) {
         const userComment = {
           id: Object(_utils_common_js__WEBPACK_IMPORTED_MODULE_3__["generateId"])(),
-          emoji: EmojiType[selectedEmojiType],
+          emoji: EmojiType[selectedEmojiType.toUpperCase()],
           text: userMessage,
           author: `Anonim`,
           time: new Date(),
         };
-        const newComments = this._film.comments.slice(0);
+        const newComments = this._film.comments.slice();
         newComments.push(userComment);
-        this._changeData(Object.assign({}, this._film, {comments: newComments.slice(0)}));
+        this._changeData(Object.assign({}, this._film, {comments: newComments.slice()}));
       }
     }
   }
@@ -6498,11 +6498,12 @@ class MovieList {
 /*!*****************************!*\
   !*** ./src/utils/common.js ***!
   \*****************************/
-/*! exports provided: getRandomInteger, getRandomValueFromArray, getRandomDouble, updateItem, generateId, getHumaniseDuration, getConvertingDate */
+/*! exports provided: Key, getRandomInteger, getRandomValueFromArray, getRandomDouble, updateItem, generateId, getHumaniseDuration, getConvertingDate */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "Key", function() { return Key; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getRandomInteger", function() { return getRandomInteger; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getRandomValueFromArray", function() { return getRandomValueFromArray; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getRandomDouble", function() { return getRandomDouble; });
@@ -6513,6 +6514,12 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! moment */ "./node_modules/moment/moment.js");
 /* harmony import */ var moment__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(moment__WEBPACK_IMPORTED_MODULE_0__);
 
+
+const Key = {
+  FILM_CARD: `film card`,
+  FILM_DETAIL: `film detail`,
+  COMMENT: `comment`
+};
 
 const getRandomInteger = (min = 0, max = 1) => {
   const lower = Math.ceil(Math.min(min, max));
@@ -6556,11 +6563,11 @@ const getHumaniseDuration = (minutes) => {
 const getConvertingDate = (date, key) => {
   if (date instanceof Date && key) {
     switch (key) {
-      case `film card`:
+      case Key.FILM_CARD:
         return moment__WEBPACK_IMPORTED_MODULE_0___default()(date).year();
-      case `film detail`:
+      case Key.FILM_DETAIL:
         return moment__WEBPACK_IMPORTED_MODULE_0___default()(date).format(`DD MMMM YYYY`);
-      case `comment`:
+      case Key.COMMENT:
         return moment__WEBPACK_IMPORTED_MODULE_0___default()(date).format(`YYYY/MM/DD HH:mm`);
     }
   }
@@ -6836,10 +6843,10 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const EmojiImage = {
-  SMILE: `<img src="images/emoji/smile.png" width="55" height="55" alt="emoji">`,
-  SLEEPING: `<img src="images/emoji/sleeping.png" width="55" height="55" alt="emoji">`,
-  PUKE: `<img src="images/emoji/puke.png" width="55" height="55" alt="emoji"></img>`,
-  ANGRY: `<img src="images/emoji/angry.png" width="55" height="55" alt="emoji"></img>`
+  SMILE: `smile.png`,
+  SLEEPING: `sleeping.png`,
+  PUKE: `puke.png`,
+  ANGRY: `angry.png`
 };
 
 const EmojiType = {
@@ -6849,13 +6856,25 @@ const EmojiType = {
   ANGRY: `angry`
 };
 
-const generateGenres = (genres) => {
-  let result = ``;
-  for (let i = 0; i < genres.length; i++) {
-    result += `<span class="film-details__genre">${genres[i]}</span>`;
+const getEmojiImageElement = (emoji) => {
+  let image = null;
+  switch (emoji) {
+    case EmojiType.SMILE:
+      image = EmojiImage.SMILE;
+      break;
+    case EmojiType.ANGRY:
+      image = EmojiImage.ANGRY;
+      break;
+    case EmojiType.SLEEPING:
+      image = EmojiImage.SLEEPING;
+      break;
+    case EmojiType.PUKE:
+      image = EmojiImage.PUKE;
   }
-  return result;
+  return `<img src="images/emoji/${image}" width="55" height="55" alt="emoji"></img>`;
 };
+
+const generateGenres = (genres) => genres.map((genre) => `<span class="film-details__genre">${genre}</span>`).join(``);
 
 const generateComments = (comments) => {
   return comments.map((element) => `<li class="film-details__comment">
@@ -6884,9 +6903,9 @@ const generateControls = ({favorite, watched, watchlist}) => {
     <label for="favorite" class="film-details__control-label film-details__control-label--favorite">Add to favorites</label>`;
 };
 
-const createFilmDetailsTemplate = (film) => {
+const createFilmDetailsTemplate = (film, emoji, message) => {
 
-  const {image, title, rating, director, writers, actors, releaseDate, duration, country, genres, description, comments, ageRating, status, isSmile, isAngry, isSleeping, isPuke, message} = film;
+  const {image, title, rating, director, writers, actors, releaseDate, duration, country, genres, description, comments, ageRating, status} = film;
   const genreFieldName = genres.length > 1 ? `Genres` : `Genre`;
   const commentsCount = comments.length;
   const humanizeDuration = Object(_utils_common_js__WEBPACK_IMPORTED_MODULE_0__["getHumaniseDuration"])(duration);
@@ -6970,10 +6989,7 @@ const createFilmDetailsTemplate = (film) => {
 
             <div class="film-details__new-comment">
               <div for="add-emoji" class="film-details__add-emoji-label">
-              ${isSmile ? `${EmojiImage.SMILE}` : ``}
-              ${isAngry ? `${EmojiImage.ANGRY}` : ``}
-              ${isSleeping ? `${EmojiImage.SLEEPING}` : ``}
-              ${isPuke ? `${EmojiImage.PUKE}` : ``}
+              ${emoji ? `${getEmojiImageElement(emoji)}` : ``}
               </div>
 
               <label class="film-details__comment-label">
@@ -6981,22 +6997,22 @@ const createFilmDetailsTemplate = (film) => {
               </label>
 
               <div class="film-details__emoji-list">
-                <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-smile" value="smile" ${isSmile ? `checked` : ``}>
+                <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-smile" value="smile" ${emoji === EmojiType.SMILE ? `checked` : ``}>
                 <label class="film-details__emoji-label" for="emoji-smile">
                   <img src="./images/emoji/smile.png" width="30" height="30" alt="emoji" data-emoji-type="${EmojiType.SMILE}">
                 </label>
 
-                <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-sleeping" value="sleeping" ${isSleeping ? `checked` : ``}>
+                <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-sleeping" value="sleeping" ${emoji === EmojiType.SLEEPING ? `checked` : ``}>
                 <label class="film-details__emoji-label" for="emoji-sleeping">
                   <img src="./images/emoji/sleeping.png" width="30" height="30" alt="emoji" data-emoji-type="${EmojiType.SLEEPING}">
                 </label>
 
-                <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-puke" value="puke" ${isPuke ? `checked` : ``}>
+                <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-puke" value="puke" ${emoji === EmojiType.PUKE ? `checked` : ``}>
                 <label class="film-details__emoji-label" for="emoji-puke">
                   <img src="./images/emoji/puke.png" width="30" height="30" alt="emoji" data-emoji-type="${EmojiType.PUKE}">
                 </label>
 
-                <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-angry" value="angry" ${isAngry ? `checked` : ``}>
+                <input class="film-details__emoji-item visually-hidden" name="comment-emoji" type="radio" id="emoji-angry" value="angry" ${emoji === EmojiType.ANGRY ? `checked` : ``}>
                 <label class="film-details__emoji-label" for="emoji-angry">
                   <img src="./images/emoji/angry.png" width="30" height="30" alt="emoji" data-emoji-type="${EmojiType.ANGRY}">
                 </label>
@@ -7011,7 +7027,9 @@ const createFilmDetailsTemplate = (film) => {
 class FilmDetail extends _smart_js__WEBPACK_IMPORTED_MODULE_1__["default"] {
   constructor(film) {
     super();
-    this._data = FilmDetail.parseFilmToData(film);
+    this._film = film;
+    this._emoji = null;
+    this._message = null;
     this._clickHandler = this._clickHandler.bind(this);
     this._watchListClickHandler = this._watchListClickHandler.bind(this);
     this._watchedClickHandler = this._watchedClickHandler.bind(this);
@@ -7019,6 +7037,7 @@ class FilmDetail extends _smart_js__WEBPACK_IMPORTED_MODULE_1__["default"] {
     this._deleteButtonClickHandler = this._deleteButtonClickHandler.bind(this);
     this._emojiClickHandler = this._emojiClickHandler.bind(this);
     this._commentInputHandler = this._commentInputHandler.bind(this);
+    this.returnSelectedEmojiType = this.returnSelectedEmojiType.bind(this);
     this._setInnerHandler();
   }
 
@@ -7045,15 +7064,11 @@ class FilmDetail extends _smart_js__WEBPACK_IMPORTED_MODULE_1__["default"] {
 
   _commentInputHandler(evt) {
     evt.preventDefault();
-    this.updateData({message: evt.target.value}, true);
-  }
-
-  static parseFilmToData(film) {
-    return Object.assign({}, film, {isSmile: false, isAngry: false, isPuke: false, isSleeping: false, message: null});
+    this._message = evt.target.value;
   }
 
   getTemplate() {
-    return createFilmDetailsTemplate(this._data);
+    return createFilmDetailsTemplate(this._film, this._emoji, this._message);
   }
 
   _clickHandler(evt) {
@@ -7114,47 +7129,37 @@ class FilmDetail extends _smart_js__WEBPACK_IMPORTED_MODULE_1__["default"] {
 
   _emojiClickHandler(evt) {
     this._updateEmoji(evt.target.dataset.emojiType);
+    this.updateElement();
   }
 
   _updateEmoji(emojiType) {
     switch (emojiType) {
       case EmojiType.SMILE:
-        this.updateData({isSmile: true, isAngry: false, isPuke: false, isSleeping: false});
+        this._emoji = EmojiType.SMILE;
         break;
       case EmojiType.SLEEPING:
-        this.updateData({isSmile: false, isAngry: false, isPuke: false, isSleeping: true});
+        this._emoji = EmojiType.SLEEPING;
         break;
       case EmojiType.ANGRY:
-        this.updateData({isSmile: false, isAngry: true, isPuke: false, isSleeping: false});
+        this._emoji = EmojiType.ANGRY;
         break;
       case EmojiType.PUKE:
-        this.updateData({isSmile: false, isAngry: false, isPuke: true, isSleeping: false});
+        this._emoji = EmojiType.PUKE;
         break;
     }
   }
 
   returnSelectedEmojiType() {
-    if (this._data.isAngry || this._data.isPuke || this._data.isSleeping || this._data.isSmile) {
-      switch (true) {
-        case this._data.isAngry:
-          return EmojiType.ANGRY;
-        case this._data.isPuke:
-          return EmojiType.PUKE;
-        case this._data.isSleeping:
-          return EmojiType.SLEEPING;
-        case this._data.isSmile:
-          return EmojiType.SMILE;
-      }
-    }
-    return false;
+    return this._emoji ? this._emoji : false;
   }
 
   returnUserMessage() {
-    return this._data.message;
+    return this._message ? this._message : false;
   }
 
-  reset(film) {
-    this.updateData(FilmDetail.parseFilmToData(film));
+  reset() {
+    this._emoji = null;
+    this._message = null;
   }
 }
 
