@@ -6240,16 +6240,14 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _presenter_movie_list_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./presenter/movie-list.js */ "./src/presenter/movie-list.js");
 /* harmony import */ var _view_statistics_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ./view/statistics.js */ "./src/view/statistics.js");
 /* harmony import */ var _mock_film_js__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(/*! ./mock/film.js */ "./src/mock/film.js");
-/* harmony import */ var _mock_user_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./mock/user.js */ "./src/mock/user.js");
-/* harmony import */ var _utils_render_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./utils/render.js */ "./src/utils/render.js");
-/* harmony import */ var _model_movies_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./model/movies.js */ "./src/model/movies.js");
-/* harmony import */ var _model_filter_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./model/filter.js */ "./src/model/filter.js");
-/* harmony import */ var _presenter_filter_js__WEBPACK_IMPORTED_MODULE_8__ = __webpack_require__(/*! ./presenter/filter.js */ "./src/presenter/filter.js");
+/* harmony import */ var _utils_render_js__WEBPACK_IMPORTED_MODULE_4__ = __webpack_require__(/*! ./utils/render.js */ "./src/utils/render.js");
+/* harmony import */ var _model_movies_js__WEBPACK_IMPORTED_MODULE_5__ = __webpack_require__(/*! ./model/movies.js */ "./src/model/movies.js");
+/* harmony import */ var _model_filter_js__WEBPACK_IMPORTED_MODULE_6__ = __webpack_require__(/*! ./model/filter.js */ "./src/model/filter.js");
+/* harmony import */ var _presenter_filter_js__WEBPACK_IMPORTED_MODULE_7__ = __webpack_require__(/*! ./presenter/filter.js */ "./src/presenter/filter.js");
 
 
 
  // функция создает мок для фильма
- // мок для пользователя
 
 
 
@@ -6260,30 +6258,24 @@ const COMMON_FILMS_COUNT = 20;
 // создание моков для фильма
 const commonFilms = new Array(COMMON_FILMS_COUNT).fill(``).map(_mock_film_js__WEBPACK_IMPORTED_MODULE_3__["generateFilm"]);
 const filmsCount = commonFilms.length;
-// счет фильмов для меню, для статуса пользователя
-
-const filter = {watchlist: 10, watched: 10, favorite: 10};
-// мок для пользователя
-const user = Object(_mock_user_js__WEBPACK_IMPORTED_MODULE_4__["generateUser"])(filter);
 
 // модель
-const moviesModel = new _model_movies_js__WEBPACK_IMPORTED_MODULE_6__["default"]();
+const moviesModel = new _model_movies_js__WEBPACK_IMPORTED_MODULE_5__["default"]();
 moviesModel.setFilms(commonFilms);
-const filterModel = new _model_filter_js__WEBPACK_IMPORTED_MODULE_7__["default"]();
+const filterModel = new _model_filter_js__WEBPACK_IMPORTED_MODULE_6__["default"]();
 
 const headerElement = document.querySelector(`.header`);
 const mainElement = document.querySelector(`.main`);
 const footerStatisticsElement = document.querySelector(`.footer__statistics`);
 const bodyElement = document.querySelector(`body`);
 
-Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_5__["render"])(headerElement, new _view_user_profile_js__WEBPACK_IMPORTED_MODULE_0__["default"](user), _utils_render_js__WEBPACK_IMPORTED_MODULE_5__["RenderPosition"].BEFOREEND);
-Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_5__["render"])(footerStatisticsElement, new _view_statistics_js__WEBPACK_IMPORTED_MODULE_2__["default"](filmsCount), _utils_render_js__WEBPACK_IMPORTED_MODULE_5__["RenderPosition"].BEFOREEND);
+Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_4__["render"])(footerStatisticsElement, new _view_statistics_js__WEBPACK_IMPORTED_MODULE_2__["default"](filmsCount), _utils_render_js__WEBPACK_IMPORTED_MODULE_4__["RenderPosition"].BEFOREEND);
+const userProfileView = new _view_user_profile_js__WEBPACK_IMPORTED_MODULE_0__["default"](moviesModel.getWatchedCount);
+Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_4__["render"])(headerElement, userProfileView, _utils_render_js__WEBPACK_IMPORTED_MODULE_4__["RenderPosition"].BEFOREEND);
 
 // презентер
-const moviePresenter = new _presenter_movie_list_js__WEBPACK_IMPORTED_MODULE_1__["default"](mainElement, bodyElement, moviesModel, filterModel);
-moviePresenter.init();
-const filterPresenter = new _presenter_filter_js__WEBPACK_IMPORTED_MODULE_8__["default"](mainElement, filterModel, moviesModel);
-filterPresenter.init();
+new _presenter_movie_list_js__WEBPACK_IMPORTED_MODULE_1__["default"](mainElement, bodyElement, moviesModel, filterModel, userProfileView).init();
+new _presenter_filter_js__WEBPACK_IMPORTED_MODULE_7__["default"](mainElement, filterModel, moviesModel).init();
 
 
 /***/ }),
@@ -6456,47 +6448,6 @@ const generateFilm = () => {
 
 /***/ }),
 
-/***/ "./src/mock/user.js":
-/*!**************************!*\
-  !*** ./src/mock/user.js ***!
-  \**************************/
-/*! exports provided: generateUser */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-__webpack_require__.r(__webpack_exports__);
-/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "generateUser", function() { return generateUser; });
-const WatchCount = {
-  NOVICE_LOW_BOUND: 1,
-  NOVICE_UPPER_BOUND: 10,
-  FAN_LOW_BOUND: 11,
-  FAN_UPPER_BOUND: 20,
-};
-
-const generateUser = ({watched}) => {
-  const {NOVICE_LOW_BOUND, NOVICE_UPPER_BOUND, FAN_LOW_BOUND, FAN_UPPER_BOUND} = WatchCount;
-
-  let userRating = ``;
-  switch (true) {
-    case watched >= NOVICE_LOW_BOUND && watched <= NOVICE_UPPER_BOUND:
-      userRating = `Novice`;
-      break;
-    case watched >= FAN_LOW_BOUND && watched <= FAN_UPPER_BOUND:
-      userRating = `Fan`;
-      break;
-    case watched > FAN_UPPER_BOUND:
-      userRating = `Movie Buff`;
-  }
-
-  return {
-    profileRating: userRating,
-    image: `images/bitmap@2x.png`
-  };
-};
-
-
-/***/ }),
-
 /***/ "./src/model/filter.js":
 /*!*****************************!*\
   !*** ./src/model/filter.js ***!
@@ -6548,6 +6499,8 @@ class Movies extends _utils_observer_js__WEBPACK_IMPORTED_MODULE_0__["default"] 
   constructor() {
     super();
     this._films = [];
+
+    this.getWatchedCount = this.getWatchedCount.bind(this);
   }
 
   setFilms(films) {
@@ -6556,6 +6509,10 @@ class Movies extends _utils_observer_js__WEBPACK_IMPORTED_MODULE_0__["default"] 
 
   getFilms() {
     return this._films;
+  }
+
+  getWatchedCount() {
+    return this._films.filter((film) => film.status.watched).length;
   }
 
   updateFilm(updateType, update) {
@@ -6716,15 +6673,18 @@ class Film {
 
   // изменения данных
   _handleWatchListClick() {
-    this._changeData(_const_js__WEBPACK_IMPORTED_MODULE_4__["UserAction"].UPDATE_FILM, _const_js__WEBPACK_IMPORTED_MODULE_4__["UpdateType"].MINOR, Object.assign({}, this._film, {status: {watchlist: !this._film.status.watchlist, favorite: this._film.status.favorite, watched: this._film.status.watched}}));
+    const status = Object.assign({}, this._film.status, {watchlist: !this._film.status.watchlist});
+    this._changeData(_const_js__WEBPACK_IMPORTED_MODULE_4__["UserAction"].UPDATE_FILM, _const_js__WEBPACK_IMPORTED_MODULE_4__["UpdateType"].MINOR, Object.assign({}, this._film, {status}));
   }
 
   _handleWatchedClick() {
-    this._changeData(_const_js__WEBPACK_IMPORTED_MODULE_4__["UserAction"].UPDATE_FILM, _const_js__WEBPACK_IMPORTED_MODULE_4__["UpdateType"].MINOR, Object.assign({}, this._film, {status: {watched: !this._film.status.watched, favorite: this._film.status.favorite, watchlist: this._film.status.watchlist}}));
+    const status = Object.assign({}, this._film.status, {watched: !this._film.status.watched});
+    this._changeData(_const_js__WEBPACK_IMPORTED_MODULE_4__["UserAction"].UPDATE_FILM, _const_js__WEBPACK_IMPORTED_MODULE_4__["UpdateType"].MINOR, Object.assign({}, this._film, {status}));
   }
 
   _handleFavoriteClick() {
-    this._changeData(_const_js__WEBPACK_IMPORTED_MODULE_4__["UserAction"].UPDATE_FILM, _const_js__WEBPACK_IMPORTED_MODULE_4__["UpdateType"].MINOR, Object.assign({}, this._film, {status: {favorite: !this._film.status.favorite, watchlist: this._film.status.watchlist, watched: this._film.status.watched}}));
+    const status = Object.assign({}, this._film.status, {favorite: !this._film.status.favorite});
+    this._changeData(_const_js__WEBPACK_IMPORTED_MODULE_4__["UserAction"].UPDATE_FILM, _const_js__WEBPACK_IMPORTED_MODULE_4__["UpdateType"].MINOR, Object.assign({}, this._film, {status}));
   }
 
   _handleDeleteButtonClick(commentId) {
@@ -6734,8 +6694,8 @@ class Film {
 
   _handleEnterKeyDown(evt) {
     if ((evt.ctrlKey || evt.metaKey) && evt.key === Key.ENTER) {
-      const userMessage = this._filmDetailElement.returnUserMessage();
-      const selectedEmojiType = this._filmDetailElement.returnSelectedEmojiType();
+      const userMessage = this._filmDetailElement.getUserMessage();
+      const selectedEmojiType = this._filmDetailElement.getSelectedEmojiType();
       if (userMessage && selectedEmojiType) {
         const userComment = {
           id: Object(_utils_common_js__WEBPACK_IMPORTED_MODULE_3__["generateId"])(),
@@ -6746,7 +6706,7 @@ class Film {
         };
         const newComments = this._film.comments.slice();
         newComments.push(userComment);
-        this._changeData(_const_js__WEBPACK_IMPORTED_MODULE_4__["UserAction"].ADD_COMMENT, _const_js__WEBPACK_IMPORTED_MODULE_4__["UpdateType"].MINOR, Object.assign({}, this._film, {comments: newComments.slice()}));
+        this._changeData(_const_js__WEBPACK_IMPORTED_MODULE_4__["UserAction"].ADD_COMMENT, _const_js__WEBPACK_IMPORTED_MODULE_4__["UpdateType"].MINOR, Object.assign({}, this._film, {comments: newComments}));
       }
     }
   }
@@ -6892,9 +6852,11 @@ const CountType = {
 };
 
 class MovieList {
-  constructor(mainElement, bodyElement, moviesModel, filterModel) {
+  constructor(mainElement, bodyElement, moviesModel, filterModel, userProfile) {
     this._moviesModel = moviesModel;
     this._filterModel = filterModel;
+
+    this._userProfilte = userProfile; // профайл пользователя для вычисления статуса
 
     this._bodyElement = bodyElement; // body страницы
     this._mainElement = mainElement; // родитель для всех элементов ниже
@@ -6906,7 +6868,7 @@ class MovieList {
     this._noFilmElement = new _view_no_film_js__WEBPACK_IMPORTED_MODULE_5__["default"]();
     this._renderFilmCount = CountType.RENDER_FOR_STEP;
 
-    this._handleShomMoreButtonElementClick = this._handleShomMoreButtonElementClick.bind(this);
+    this._handleShowMoreButtonElementClick = this._handleShowMoreButtonElementClick.bind(this);
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
     this._handleModeChange = this._handleModeChange.bind(this);
     this._handleViewAction = this._handleViewAction.bind(this);
@@ -6954,7 +6916,7 @@ class MovieList {
   }
 
   _handleSortTypeChange(sortType) {
-    if (this._currenSortType === sortType) {
+    if (this._currentSortType === sortType) {
       return;
     }
     this._currentSortType = sortType;
@@ -7004,11 +6966,11 @@ class MovieList {
       this._showMoreButtonElement = null;
     }
     this._showMoreButtonElement = new _view_show_more_button_js__WEBPACK_IMPORTED_MODULE_4__["default"]();
-    this._showMoreButtonElement.setClickHandler(this._handleShomMoreButtonElementClick);
+    this._showMoreButtonElement.setClickHandler(this._handleShowMoreButtonElementClick);
     Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_6__["render"])(this._filmsListElement, this._showMoreButtonElement, _utils_render_js__WEBPACK_IMPORTED_MODULE_6__["RenderPosition"].BEFOREEND);
   }
 
-  _handleShomMoreButtonElementClick() {
+  _handleShowMoreButtonElementClick() {
     const filmCount = this._getFilms().length;
     const newRenderFilmCount = Math.min(filmCount, this._renderFilmCount + CountType.RENDER_FOR_STEP);
     const films = this._getFilms().slice(this._renderFilmCount, newRenderFilmCount);
@@ -7034,6 +6996,9 @@ class MovieList {
   }
 
   _handleModelEvent(updateType, data) {
+
+    this._userProfilte.setUserRaiting(); // устанавливает статус пользователя
+
     switch (updateType) {
       case _const_js__WEBPACK_IMPORTED_MODULE_9__["UpdateType"].MINOR:
         this._filmPresenter[data.id].init(data);
@@ -7663,7 +7628,7 @@ class FilmDetail extends _smart_js__WEBPACK_IMPORTED_MODULE_1__["default"] {
     this._deleteButtonClickHandler = this._deleteButtonClickHandler.bind(this);
     this._emojiClickHandler = this._emojiClickHandler.bind(this);
     this._commentInputHandler = this._commentInputHandler.bind(this);
-    this.returnSelectedEmojiType = this.returnSelectedEmojiType.bind(this);
+    this.getSelectedEmojiType = this.getSelectedEmojiType.bind(this);
     this._setInnerHandler();
   }
 
@@ -7775,11 +7740,11 @@ class FilmDetail extends _smart_js__WEBPACK_IMPORTED_MODULE_1__["default"] {
     }
   }
 
-  returnSelectedEmojiType() {
+  getSelectedEmojiType() {
     return this._emoji ? this._emoji : false;
   }
 
-  returnUserMessage() {
+  getUserMessage() {
     return this._message ? this._message : false;
   }
 
@@ -7879,8 +7844,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const createMenuItemTemplate = (filter, currentFilter) => {
-  const {type, name, count} = filter;
+const createMenuItemTemplate = ({type, name, count}, currentFilter) => {
   return `<a href="#watchlist" class="main-navigation__item ${type === currentFilter ? `main-navigation__item--active` : ``}" data-filter-type="${type}">${name} <span class="main-navigation__item-count">${count}</span></a>`;
 };
 
@@ -7916,7 +7880,9 @@ class Menu extends _abstract_js__WEBPACK_IMPORTED_MODULE_0__["default"] {
 
   setFilterTypeChangeHandler(callback) {
     this._callback.filterTypeChange = callback;
-    this.getElement().addEventListener(`click`, this._filterTypeChangeHandler);
+    this.getElement()
+      .querySelectorAll(`.main-navigation__item`)
+      .forEach((element) => element.addEventListener(`click`, this._filterTypeChangeHandler));
   }
 }
 
@@ -8130,21 +8096,53 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _abstract_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./abstract.js */ "./src/view/abstract.js");
 
 
-const createUserProfileTemplate = ({profileRating, image}) => {
+const WatchCount = {
+  NONE: 0,
+  NOVICE_LOW_BOUND: 1,
+  NOVICE_UPPER_BOUND: 10,
+  FAN_LOW_BOUND: 11,
+  FAN_UPPER_BOUND: 20,
+};
+
+const getUserStatus = (watchedCount) => {
+  let profileRating = null;
+  switch (true) {
+    case watchedCount >= WatchCount.NOVICE_LOW_BOUND && watchedCount <= WatchCount.NOVICE_UPPER_BOUND:
+      profileRating = `Novice`;
+      break;
+    case watchedCount >= WatchCount.FAN_LOW_BOUND && watchedCount <= WatchCount.FAN_UPPER_BOUND:
+      profileRating = `Fan`;
+      break;
+    case watchedCount > WatchCount.FAN_UPPER_BOUND:
+      profileRating = `Movie Buff`;
+      break;
+    case watchedCount === WatchCount.NONE:
+      profileRating = ``;
+      break;
+  }
+  return profileRating;
+};
+
+const createUserProfileTemplate = (profileRating) => {
+
   return `<section class="header__profile profile">
       <p class="profile__rating">${profileRating}</p>
-      <img class="profile__avatar" src="${image}" alt="Avatar" width="35" height="35">
+      <img class="profile__avatar" src="images/bitmap@2x.png" alt="Avatar" width="35" height="35">
     </section>`;
 };
 
 class UserProfile extends _abstract_js__WEBPACK_IMPORTED_MODULE_0__["default"] {
-  constructor(user) {
+  constructor(userRaiting) {
     super();
-    this._user = user;
+    this._userRaiting = userRaiting;
   }
 
   getTemplate() {
-    return createUserProfileTemplate(this._user);
+    return createUserProfileTemplate(getUserStatus(this._userRaiting()));
+  }
+
+  setUserRaiting() {
+    document.querySelector(`.profile__rating`).textContent = getUserStatus(this._userRaiting());
   }
 }
 
