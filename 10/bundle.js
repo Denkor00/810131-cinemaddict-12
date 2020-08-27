@@ -6270,11 +6270,10 @@ const footerStatisticsElement = document.querySelector(`.footer__statistics`);
 const bodyElement = document.querySelector(`body`);
 
 Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_4__["render"])(footerStatisticsElement, new _view_statistics_js__WEBPACK_IMPORTED_MODULE_2__["default"](filmsCount), _utils_render_js__WEBPACK_IMPORTED_MODULE_4__["RenderPosition"].BEFOREEND);
-const userProfileView = new _view_user_profile_js__WEBPACK_IMPORTED_MODULE_0__["default"](moviesModel.getWatchedCount);
-Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_4__["render"])(headerElement, userProfileView, _utils_render_js__WEBPACK_IMPORTED_MODULE_4__["RenderPosition"].BEFOREEND);
+Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_4__["render"])(headerElement, new _view_user_profile_js__WEBPACK_IMPORTED_MODULE_0__["default"](moviesModel), _utils_render_js__WEBPACK_IMPORTED_MODULE_4__["RenderPosition"].BEFOREEND);
 
 // презентер
-new _presenter_movie_list_js__WEBPACK_IMPORTED_MODULE_1__["default"](mainElement, bodyElement, moviesModel, filterModel, userProfileView).init();
+new _presenter_movie_list_js__WEBPACK_IMPORTED_MODULE_1__["default"](mainElement, bodyElement, moviesModel, filterModel).init();
 new _presenter_filter_js__WEBPACK_IMPORTED_MODULE_7__["default"](mainElement, filterModel, moviesModel).init();
 
 
@@ -6852,11 +6851,9 @@ const CountType = {
 };
 
 class MovieList {
-  constructor(mainElement, bodyElement, moviesModel, filterModel, userProfile) {
+  constructor(mainElement, bodyElement, moviesModel, filterModel) {
     this._moviesModel = moviesModel;
     this._filterModel = filterModel;
-
-    this._userProfilte = userProfile; // профайл пользователя для вычисления статуса
 
     this._bodyElement = bodyElement; // body страницы
     this._mainElement = mainElement; // родитель для всех элементов ниже
@@ -6996,9 +6993,6 @@ class MovieList {
   }
 
   _handleModelEvent(updateType, data) {
-
-    this._userProfilte.setUserRaiting(); // устанавливает статус пользователя
-
     switch (updateType) {
       case _const_js__WEBPACK_IMPORTED_MODULE_9__["UpdateType"].MINOR:
         this._filmPresenter[data.id].init(data);
@@ -8132,17 +8126,19 @@ const createUserProfileTemplate = (profileRating) => {
 };
 
 class UserProfile extends _abstract_js__WEBPACK_IMPORTED_MODULE_0__["default"] {
-  constructor(userRaiting) {
+  constructor(moviesModel) {
     super();
-    this._userRaiting = userRaiting;
+    this._moviesModel = moviesModel;
+    this.setUserRaiting = this.setUserRaiting.bind(this);
+    this._moviesModel.addObserver(this.setUserRaiting);
   }
 
   getTemplate() {
-    return createUserProfileTemplate(getUserStatus(this._userRaiting()));
+    return createUserProfileTemplate(getUserStatus(this._moviesModel.getWatchedCount()));
   }
 
   setUserRaiting() {
-    document.querySelector(`.profile__rating`).textContent = getUserStatus(this._userRaiting());
+    document.querySelector(`.profile__rating`).textContent = getUserStatus(this._moviesModel.getWatchedCount());
   }
 }
 
