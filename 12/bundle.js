@@ -6209,7 +6209,9 @@ __webpack_require__.r(__webpack_exports__);
 
 const Method = {
   GET: `GET`,
-  PUT: `PUT`
+  PUT: `PUT`,
+  DELETE: `DELETE`,
+  POST: `POST`
 };
 
 const SuccessHTTPStatusRange = {
@@ -6232,6 +6234,25 @@ class Api {
   getComments(filmId) {
     return this._load({url: `comments/${filmId}`})
       .then(Api.toJSON);
+  }
+
+  deleteComment(commentId) {
+    return this._load({url: `comments/${commentId}`, method: Method.DELETE});
+  }
+
+  addComment(film) {
+    return this._load({
+      url: `comments/${film.id}`,
+      method: Method.POST,
+      body: JSON.stringify({
+        comment: film.newComment.comment,
+        date: film.newComment.date instanceof Date ? film.newComment.date.toISOString() : null,
+        emotion: film.newComment.emotion,
+        // author: film.newComment.author
+      }),
+      headers: new Headers({"Content-Type": `application/json`})
+    }).then(Api.toJSON)
+      .then((data) => _model_movies_js__WEBPACK_IMPORTED_MODULE_0__["default"].adaptToClient(data.movie));
   }
 
   updateFilm(film) {
@@ -6336,8 +6357,8 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-const AUTHORIZATION = `Basic qwerty`;
-const END_POINT = `https://12.ecmascript.pages.academy/cinemaddict/`;
+const AUTHORIZATION = `Basic qwertyuaqq`;
+const END_POINT = `https://12.ecmascript.pages.academy/cinemaddict`;
 
 // модель
 const moviesModel = new _model_movies_js__WEBPACK_IMPORTED_MODULE_4__["default"]();
@@ -6356,12 +6377,10 @@ Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_3__["render"])(headerElement, n
 new _presenter_movie_list_js__WEBPACK_IMPORTED_MODULE_1__["default"](mainElement, bodyElement, moviesModel, filterModel, api).init();
 new _presenter_filter_js__WEBPACK_IMPORTED_MODULE_6__["default"](mainElement, filterModel, moviesModel).init();
 
-let filmCount = null;
 api.getFilms()
   .then((films) => {
-    filmCount = films.length;
     moviesModel.setFilms(_const_js__WEBPACK_IMPORTED_MODULE_8__["UpdateType"].INIT, films);
-    Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_3__["render"])(footerStatisticsElement, new _view_statistics_js__WEBPACK_IMPORTED_MODULE_2__["default"](filmCount), _utils_render_js__WEBPACK_IMPORTED_MODULE_3__["RenderPosition"].BEFOREEND);
+    Object(_utils_render_js__WEBPACK_IMPORTED_MODULE_3__["render"])(footerStatisticsElement, new _view_statistics_js__WEBPACK_IMPORTED_MODULE_2__["default"](films.length), _utils_render_js__WEBPACK_IMPORTED_MODULE_3__["RenderPosition"].BEFOREEND);
   });
 
 
@@ -6452,7 +6471,7 @@ class Movies extends _utils_observer_js__WEBPACK_IMPORTED_MODULE_0__["default"] 
   }
 
   static adaptToClient(film) {
-    const adaptedFilm = Object.assign({}, film, {
+    return Object.assign({}, film, {
       image: film.film_info.poster,
       title: film.film_info.title,
       alternativeTitle: film.film_info.alternative_title,
@@ -6474,12 +6493,10 @@ class Movies extends _utils_observer_js__WEBPACK_IMPORTED_MODULE_0__["default"] 
       }
     }
     );
-
-    return adaptedFilm;
   }
 
   static adaptToServer(film) {
-    const adaptedFilm = Object.assign({}, film, {
+    return Object.assign({}, film, {
       "film_info": {
         "poster": film.image,
         "title": film.title,
@@ -6504,7 +6521,6 @@ class Movies extends _utils_observer_js__WEBPACK_IMPORTED_MODULE_0__["default"] 
         "watching_date": film.status.watchingDate instanceof Date ? film.status.watchingDate.toISOString() : null,
       }
     });
-    return adaptedFilm;
   }
 
 }
@@ -6544,11 +6560,18 @@ const Mode = {
   OPEN: `OPEN`
 };
 
+// const EmojiType = {
+//   SMILE: `./images/emoji/smile.png`,
+//   SLEEPING: `./images/emoji/sleeping.png`,
+//   PUKE: `./images/emoji/puke.png`,
+//   ANGRY: `./images/emoji/angry.png`,
+// };
+
 const EmojiType = {
-  SMILE: `./images/emoji/smile.png`,
-  SLEEPING: `./images/emoji/sleeping.png`,
-  PUKE: `./images/emoji/puke.png`,
-  ANGRY: `./images/emoji/angry.png`,
+  SMILE: `smile`,
+  SLEEPING: `sleeping`,
+  PUKE: `puke`,
+  ANGRY: `angry`,
 };
 
 class Film {
@@ -6558,7 +6581,6 @@ class Film {
     this._changeData = changeData;
     this._changeMode = changeMode;
     this._filmComments = null;
-    this._filmId = null;
     this._api = api;
 
     this._handleEscKeyDown = this._handleEscKeyDown.bind(this);
@@ -6571,19 +6593,16 @@ class Film {
 
     this._filmCardElement = null;
     this._filmDetailElement = null;
-    this._currentComments = null;
     this._mode = Mode.DEFAULT;
   }
 
   init(film) {
     this._film = film;
-    this._filmId = film.id;
 
-    this._api.getComments(this._filmId)
+    this._api.getComments(film.id)
       .then((data) => {
         this._filmComments = data.slice();
       });
-
 
     const prevFilmCardElement = this._filmCardElement;
     const prevFilmDetailElement = this._filmDetailElement;
@@ -6678,8 +6697,9 @@ class Film {
   }
 
   _handleDeleteButtonClick(commentId) {
-    const newComments = this._film.comments.filter((comment) => comment !== parseInt(commentId, 10));
-    this._changeData(_const_js__WEBPACK_IMPORTED_MODULE_4__["UserAction"].DELETE_COMMENT, _const_js__WEBPACK_IMPORTED_MODULE_4__["UpdateType"].MINOR, Object.assign({}, this._film, {comments: newComments.slice()}));
+    const newComments = this._film.comments.filter((comment) => comment !== commentId);
+    this._filmComments = this._filmComments.filter((comment) => comment.id !== commentId);
+    this._changeData(_const_js__WEBPACK_IMPORTED_MODULE_4__["UserAction"].DELETE_COMMENT, _const_js__WEBPACK_IMPORTED_MODULE_4__["UpdateType"].MINOR, Object.assign({}, this._film, {comments: newComments.slice()}, {deletedIdComment: commentId}));
   }
 
   _handleEnterKeyDown(evt) {
@@ -6689,15 +6709,13 @@ class Film {
       if (userMessage && selectedEmojiType) {
         const userComment = {
           id: Object(_utils_common_js__WEBPACK_IMPORTED_MODULE_3__["generateId"])(),
-          emoji: EmojiType[selectedEmojiType.toUpperCase()],
-          text: userMessage,
-          author: `Anonim`,
-          time: new Date(),
+          emotion: EmojiType[selectedEmojiType.toUpperCase()],
+          comment: userMessage,
+          // author: `Anonim`,
+          date: new Date(),
         };
-        this._filmsComments.push(userComment);
-        const newIdComments = this._film.comments.slice();
-        newIdComments.push(userComment.id);
-        this._changeData(_const_js__WEBPACK_IMPORTED_MODULE_4__["UserAction"].ADD_COMMENT, _const_js__WEBPACK_IMPORTED_MODULE_4__["UpdateType"].MINOR, Object.assign({}, this._film, {comments: newIdComments}));
+        this._filmComments.push(userComment);
+        this._changeData(_const_js__WEBPACK_IMPORTED_MODULE_4__["UserAction"].ADD_COMMENT, _const_js__WEBPACK_IMPORTED_MODULE_4__["UpdateType"].MINOR, Object.assign({}, this._film, {newComment: userComment}));
       }
     }
   }
@@ -6993,10 +7011,14 @@ class MovieList {
         });
         break;
       case _const_js__WEBPACK_IMPORTED_MODULE_9__["UserAction"].DELETE_COMMENT:
-        this._moviesModel.updateFilm(updateType, update);
+        this._api.deleteComment(update.deletedIdComment).then(() => {
+          this._moviesModel.updateFilm(updateType, update);
+        });
         break;
       case _const_js__WEBPACK_IMPORTED_MODULE_9__["UserAction"].ADD_COMMENT:
-        this._moviesModel.updateFilm(updateType, update);
+        this._api.addComment(update).then((response) => {
+          this._moviesModel.updateFilm(updateType, response);
+        });
     }
   }
 
@@ -7485,16 +7507,16 @@ const generateGenres = (genres) => genres.map((genre) => `<span class="film-deta
 
 const generateComments = (comments) => {
   if (comments) {
-    return comments.map((element) => `<li class="film-details__comment">
+    return comments.map(({id, emotion, comment, author, date}) => `<li class="film-details__comment" data-comment-id="${id}">
   <span class="film-details__comment-emoji">
-    <img src="${EmotionImage[element.emotion.toUpperCase()]}" width="55" height="55" alt="emoji-smile">
+    <img src="${EmotionImage[emotion.toUpperCase()]}" width="55" height="55" alt="emoji-smile">
   </span>
   <div>
-    <p class="film-details__comment-text">${he__WEBPACK_IMPORTED_MODULE_2___default.a.encode(element.comment)}</p>
+    <p class="film-details__comment-text">${he__WEBPACK_IMPORTED_MODULE_2___default.a.encode(comment)}</p>
     <p class="film-details__comment-info">
-      <span class="film-details__comment-author">${element.author}</span>
-      <span class="film-details__comment-day">${Object(_utils_common_js__WEBPACK_IMPORTED_MODULE_0__["getConvertingDate"])(new Date(element.date), `comment`)}</span>
-      <button class="film-details__comment-delete" data-comment-id ="${element.id}">Delete</button>
+      <span class="film-details__comment-author">${author}</span>
+      <span class="film-details__comment-day">${Object(_utils_common_js__WEBPACK_IMPORTED_MODULE_0__["getConvertingDate"])(new Date(date), `comment`)}</span>
+      <button class="film-details__comment-delete" data-comment-id ="${id}">Delete</button>
     </p>
   </div>
 </li>`).join(``);
@@ -7515,17 +7537,6 @@ const generateControls = ({favorite, watched, watchlist}) => {
 };
 
 const createFilmDetailsTemplate = (film, emoji, message, filmsComments) => {
-
-  // let commentsForFilm = [];
-
-  // находит какие комментарии относятся к фильму
-  // film.comments.forEach((comment) => {
-  //   filmsComments.forEach((filmComment) => {
-  //     if (comment === filmComment.id) {
-  //       commentsForFilm.push(filmComment);
-  //     }
-  //   });
-  // });
 
   const {id, image, alternativeTitle, title, rating, director, writers, actors, releaseDate, duration, country, genres, description, comments, ageRating, status} = film;
   const genreFieldName = genres.length > 1 ? `Genres` : `Genre`;
@@ -7647,10 +7658,10 @@ const createFilmDetailsTemplate = (film, emoji, message, filmsComments) => {
 };
 
 class FilmDetail extends _smart_js__WEBPACK_IMPORTED_MODULE_1__["default"] {
-  constructor(film, filmsComments) {
+  constructor(film, comments) {
     super();
     this._film = film;
-    this._filmsComments = filmsComments;
+    this._filmsComments = comments;
     this._emoji = null;
     this._message = null;
     this._clickHandler = this._clickHandler.bind(this);
@@ -7878,17 +7889,13 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _abstract_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./abstract.js */ "./src/view/abstract.js");
 
 
-const createLoadingTemplate = () => {
-  return `<section class="films">
-  <section class="films-list">
-    <h2 class="films-list__title">Loading...</h2>
-  </section>
-</section>`;
-};
-
 class Loading extends _abstract_js__WEBPACK_IMPORTED_MODULE_0__["default"] {
   getTemplate() {
-    return createLoadingTemplate();
+    return `<section class="films">
+    <section class="films-list">
+      <h2 class="films-list__title">Loading...</h2>
+    </section>
+  </section>`;
   }
 }
 
